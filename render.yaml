@@ -1,0 +1,44 @@
+services:
+  - type: web
+    name: stherysholl-web
+    env: node
+    rootDir: .
+    buildCommand: npm install && npm run build --workspace apps/web
+    startCommand: npx vite preview --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: stherysholl-api
+          property: host
+
+  - type: web
+    name: stherysholl-api
+    env: node
+    rootDir: .
+    buildCommand: npm install && npm run build --workspace apps/server
+    startCommand: npm run start --workspace apps/server
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: CLIENT_URL
+        fromService:
+          type: web
+          name: stherysholl-web
+          property: host
+      - key: OLLAMA_BASE_URL
+        value: http://localhost:11434
+      - key: OLLAMA_MODEL
+        value: llama3.1
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: ALLOWED_FETCH_DOMAINS
+        value: example.com,github.com,developer.mozilla.org,docs.python.org
+      - key: ENABLE_WEB_FETCH
+        value: true
+      - key: CODE_TIMEOUT_MS
+        value: 15000
